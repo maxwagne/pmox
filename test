@@ -1,0 +1,2 @@
+options vfio-pci ids=1002:73ff
+options vfio-pci ids=1002:ab28
