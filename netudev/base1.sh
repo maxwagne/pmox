@@ -1,38 +1,37 @@
 #!/bin/bash
 
-# Benutzer zur Eingabe des neuen Schnittstellennamens auffordern
-read -p "Geben Sie den neuen Schnittstellennamen ein (z.B. nic1): " INTERFACE_NAME
+# Prompt user for the new interface name
+read -p "Enter the new interface name (e.g., nic1): " INTERFACE_NAME
 
 # Get the list of available network interfaces and their MAC addresses
 echo "Available network interfaces and their MAC addresses:"
 ip addr
 
 # Prompt user to enter the NIC name from the list
-read -p "Geben Sie den Namen der Netzwerkschnittstelle ein, dessen MAC-Adresse Sie mit dem neuen Namen versehen möchten (z.B. eth0, enp4s0): " SELECTED_INTERFACE
+read -p "Enter the network interface name whose MAC address you want to associate with the new name: " SELECTED_INTERFACE
 
 # Retrieve MAC address for the selected interface
 MAC_ADDRESS=$(ip addr show dev "$SELECTED_INTERFACE" | awk '/ether/{print $2}')
-echo "MAC-Adresse für $SELECTED_INTERFACE: $MAC_ADDRESS"
+echo "MAC address for $SELECTED_INTERFACE: $MAC_ADDRESS"
 
 # Create or edit the udev rule file
-echo 'SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="'"$MAC_ADDRESS"'", NAME="'"$INTERFACE_NAME"'"' | sudo tee /etc/udev/rules.d/70-persistent-net.rules > /dev/null
+echo 'SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="'"$MAC_ADDRESS"'", NAME="'"$INTERFACE_NAME"'"' > /etc/udev/rules.d/70-persistent-net.rules
 
 # Reload udev rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger
+udevadm control --reload-rules
+udevadm trigger
 
-echo "Udev-Regel angewendet. Der Schnittstellenname '$INTERFACE_NAME' wurde der MAC-Adresse '$MAC_ADDRESS' zugewiesen."
+echo "Udev rule applied. The interface name '$INTERFACE_NAME' has been assigned to MAC address '$MAC_ADDRESS'."
 
-# Änderungen in der Netzwerkkonfigurationsdatei vornehmen
-sudo sed -i 's/'"$SELECTED_INTERFACE"'/'"$INTERFACE_NAME"'/g' /etc/network/interfaces
+# Make changes in the network configuration file
+sed -i 's/'"$SELECTED_INTERFACE"'/'"$INTERFACE_NAME"'/g' /etc/network/interfaces
 
-echo "Netzwerkkonfiguration aktualisiert. Der Schnittstellenname wurde in der Konfigurationsdatei ersetzt."
+echo "Network configuration updated. The interface name has been replaced in the configuration file."
 
-# Neustart des Systems durchführen
-read -p "Möchten Sie jetzt das System neu starten? (j/n): " REBOOT_CONFIRM
-if [ "$REBOOT_CONFIRM" = "j" ]; then
-    sudo reboot
+# Perform system reboot
+read -p "Do you want to reboot the system now? (y/n): " REBOOT_CONFIRM
+if [ "$REBOOT_CONFIRM" = "y" ]; then
+    reboot
 else
-    echo "Systemneustart wurde nicht ausgeführt. Bitte starten Sie das System manuell neu, um die Änderungen wirksam zu machen."
+    echo "System reboot was not executed. Please manually restart the system to apply the changes."
 fi
-
