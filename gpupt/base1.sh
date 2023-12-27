@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Update package lists and install vim
-apt update
-apt install -y vim
-
 # Display EFI boot information
 efibootmgr -v
 
