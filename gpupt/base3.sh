@@ -31,6 +31,6 @@ options_line="${options_line%,}"
 # Append the line into the file
 echo "$options_line" >> /etc/modprobe.d/vfio.conf
 
-# Second and third lines in vfio.conf
-echo "softdep radeon pre: vfio-pci" >> /etc/modprobe.d/vfio.conf
-echo "softdep amdgpu pre: vfio-pci" >> /etc/modprobe.d/vfio.conf
+# Blacklist GPU
+echo "blacklist radeon" >> /etc/modprobe.d/blacklist.conf
+echo "blacklist amdgpu" >> /etc/modprobe.d/blacklist.conf
