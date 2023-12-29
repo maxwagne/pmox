@@ -34,3 +34,11 @@ echo "$options_line" >> /etc/modprobe.d/vfio.conf
 # Blacklist GPU
 echo "blacklist radeon" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist amdgpu" >> /etc/modprobe.d/blacklist.conf
+
+# Perform system reboot
+read -p "Do you want to reboot the system now? (y/n): " REBOOT_CONFIRM
+if [ "$REBOOT_CONFIRM" = "y" ]; then
+    reboot
+else
+    echo "System reboot was not executed. Please manually restart the system to apply the changes."
+fi
