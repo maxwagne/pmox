@@ -4,9 +4,12 @@
 efibootmgr -v
 
 # Edit GRUB configuration
+
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT="quiet iommu=pt"/' /etc/default/grub
 update-grub
 update-grub2
+
+apt install grub-efi-amd64
 
 # Perform system reboot
 read -p "Do you want to reboot the system now? (y/n): " REBOOT_CONFIRM
