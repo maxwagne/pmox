@@ -6,6 +6,7 @@ efibootmgr -v
 # Edit GRUB configuration
 sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="quiet"/GRUB_CMDLINE_LINUX_DEFAULT="quiet iommu=pt"/' /etc/default/grub
 update-grub
+update-grub2
 
 # Reboot the system
 reboot now
