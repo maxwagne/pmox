@@ -8,37 +8,35 @@ dmesg | grep 'remapping'
 lspci -nn | grep 'NVIDIA'
 lspci -nn | grep 'AMD'
 
-# Modify vfio configuration after reboot
+# Check if vfio configuration already exists
+vfio_conf="/etc/modprobe.d/vfio.conf"
+if [ ! -f "$vfio_conf" ]; then
+    # Prompt for the IDs input in the format ****:****,****:****
+    read -p "Please enter the IDs in the format ****:****,****:****: " ids_input
 
-# Prompt for the IDs input in the format ****:****,****:****
-read -p "Please enter the IDs in the format ****:****,****:****: " ids_input
+    # Split the IDs based on comma
+    IFS=',' read -ra id_list <<< "$ids_input"
 
-# Split the IDs based on comma
-IFS=',' read -ra id_list <<< "$ids_input"
+    # Construct the line with the IDs
+    options_line="options vfio-pci ids="
 
-# Construct the line with the IDs
-options_line="options vfio-pci ids="
+    # Build the line for each ID
+    for id in "${id_list[@]}"
+    do
+        options_line+="$(echo "$id" | tr '\n' ',')"
+    done
 
-# Build the line for each ID
-for id in "${id_list[@]}"
-do
-    options_line+="$(echo "$id" | tr '\n' ',')"
-done
+    # Remove the trailing comma
+    options_line="${options_line%,}"
 
-# Remove the trailing comma
-options_line="${options_line%,}"
-
-# Append the line into the file
-echo "$options_line" >> /etc/modprobe.d/vfio.conf
+    # Append the line into the file
+    echo "$options_line" >> "$vfio_conf"
+fi
 
 # Blacklist GPU
 echo "blacklist radeon" >> /etc/modprobe.d/blacklist.conf
 echo "blacklist amdgpu" >> /etc/modprobe.d/blacklist.conf
 
-# Perform system reboot
-read -p "Do you want to reboot the system now? (y/n): " REBOOT_CONFIRM
-if [ "$REBOOT_CONFIRM" = "y" ]; then
-    reboot
-else
-    echo "System reboot was not executed. Please manually restart the system to apply the changes."
-fi
+# Perform system reboot without prompting
+reboot
+
